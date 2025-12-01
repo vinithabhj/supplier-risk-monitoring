@@ -1,0 +1,770 @@
+{
+  "name": "Supplier Risk Monitoring (Simplified)",
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "return [\n  { json: { supplier_id: 1, supplier_name: 'Cococola',       ticker: 'KO',          product_category: 'Beverages' } },\n  { json: { supplier_id: 2, supplier_name: 'Hatsun Agro',    ticker: 'HATSUN.NS',   product_category: 'Milk Products, Ice creams' } },\n  { json: { supplier_id: 3, supplier_name: 'Godrej Agrovet', ticker: 'GODREJAGRO.NS', product_category: 'Meat and Poultry' } },\n  { json: { supplier_id: 4, supplier_name: 'KRBL Limited',   ticker: 'KRBL.NS',     product_category: 'Rice Products' } },\n  { json: { supplier_id: 5, supplier_name: 'Marico',         ticker: 'MARICO.NS',   product_category: 'Edible Oil' } }\n];"
+      },
+      "id": "129a4517-c2cc-4357-abba-e715ad842648",
+      "name": "Build Supplier List",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.overall_risk_level }}",
+              "value2": "Critical"
+            }
+          ]
+        }
+      },
+      "id": "2050e554-57bf-4d14-ab26-42fe8b259f25",
+      "name": "IF Critical?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.overall_risk_level }}",
+              "value2": "Medium"
+            }
+          ]
+        }
+      },
+      "id": "4db216bd-b1d4-4d4e-aec3-d497cfbbfa93",
+      "name": "IF Medium or Low",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1WVabwQVA9nz50vchLsbR_7y1v8H3N-G1GiFRxI8yxOE/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WVabwQVA9nz50vchLsbR_7y1v8H3N-G1GiFRxI8yxOE/edit#gid=0"
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Supplier Name",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.supplier_name }}"
+            },
+            {
+              "fieldId": "Risk level",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.overall_risk_level }}"
+            },
+            {
+              "fieldId": "Risk Summary",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.summary }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d896a313-4d14-4ecc-8877-d710cf648e83",
+      "name": "Log Medium Weekly Digest",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        1856,
+        464
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5vLGq9WBET1ntzdc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1z3meid4Zy1p5QAvEPbI8Vl906Ws24zBitc7Wr1QDzvU/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z3meid4Zy1p5QAvEPbI8Vl906Ws24zBitc7Wr1QDzvU/edit#gid=0"
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Supplier Name",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.supplier_name }}"
+            },
+            {
+              "fieldId": "Risk Score",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.overall_risk_score }}"
+            },
+            {
+              "fieldId": "Risk level",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.overall_risk_level }}"
+            },
+            {
+              "fieldId": "Risk Summary",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.summary }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a6893990-02c9-41cf-82ab-baae0dd0cdc1",
+      "name": "Trend Analysis",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        2352,
+        400
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5vLGq9WBET1ntzdc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        368
+      ],
+      "id": "7ffe6c3f-0fca-4079-bd27-306e3fc5d01a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        608,
+        320
+      ],
+      "id": "ef5b70a5-b69e-432d-90db-55bcc1d21897",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -64,
+        528
+      ],
+      "id": "7c1f12d2-8428-4db8-b260-af8243b2094e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "2RNOJ3sSsI3wBGXL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Supplier Risk Aggregation Engine.\n\nIMPORTANT OUTPUT RULES:\n- Output ONLY a JSON array.\n- NO explanations.\n- NO text before or after the JSON.\n- NO sentences, labels, markdown, or comments.\n- The FIRST character must be '[' and the LAST character must be ']'.\n- All values must be valid JSON.\n- If you cannot produce a value, use null.\n\n\nYou will receive an array of items from three risk agents:\n- Financial Risk Agent\n- External Google Search Agent\n- Internal News Agent\n\nThere will be a total of 15 items (3 agents × 5 suppliers).\n\nEach supplier appears exactly once in each agent output.\n\nYour tasks:\n\n1. GROUP all items by supplier_name.\n2. For each supplier (Cococola, Hatsun Agro, Godrej Agrovet, KRBL Limited, Marico):\n   - Extract financial_risk_score\n   - Extract external_news_risk_score\n   - Extract internal_news_risk_score\n3. Compute overall_risk_score as the average of the 3 scores.\n   - If any score ≥ 0.7 (\"Critical\"), give that score 1.25× weight.\n   - Give the internal_news_risk_score as weightage of 40% , the other two risk_scores can be given 30% and 30%.\n4. Assign:\n  If overall risk score is \n   - 0.7–1.0 → \"Critical\"\n   - 0.4–0.7 → \"Medium\"\n   - below 0.4 → \"Low\"\n   Strictly follow the above criteria while determining the overall risk level.\n5. Create merged insights from all 3 agents.\n\nYou MUST output exactly 5 JSON objects in an array, one per supplier.\n\nFormat:\n\n[\n  {\n    \"supplier_name\": \"\",\n    \"financial_risk_score\": 0,\n    \"external_news_risk_score\": 0,\n    \"internal_news_risk_score\": 0,\n    \"overall_risk_score\": 0,\n    \"overall_risk_level\": \"\",\n    \"combined_key_insights\": [],\n    \"summary\": \"\"\n  }\n]\n\nHere is the merged data you must analyze:\n{{ JSON.stringify($input.all(), null, 2) }}\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        816,
+        336
+      ],
+      "id": "714df091-9439-4271-a4ea-18674ec71e59",
+      "name": "Basic LLM Chain",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        544
+      ],
+      "id": "3cb8cf0c-bce7-41eb-b311-76edb6542d54",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "2RNOJ3sSsI3wBGXL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search?engine=google_news&q={{$json.supplier_name}}&api_key=f6e545302f38b78d35b5b45451f2757f800169fba3ecf029899e2cbe05123b8d\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        64,
+        512
+      ],
+      "id": "395ea0dd-c6be-4091-a0dc-2affd09110b5",
+      "name": "Serp API Node"
+    },
+    {
+      "parameters": {
+        "url": "=https://query1.finance.yahoo.com/v8/finance/chart/{{ $json.ticker }}?range=1d&includePrePost=false",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        112,
+        144
+      ],
+      "id": "2a7818da-cea2-4e4f-a1a3-f76b22cfbc6e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        128
+      ],
+      "id": "39aed65a-5cbd-4a20-832d-00afb065f45e",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "2RNOJ3sSsI3wBGXL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        912
+      ],
+      "id": "18338e46-0882-4b9a-932d-094ac2086dac",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "2RNOJ3sSsI3wBGXL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1cauqNuG-CJJq4RQUpQ0L85CtIFKbg_XbO6uaZTBbQ58/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cauqNuG-CJJq4RQUpQ0L85CtIFKbg_XbO6uaZTBbQ58/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        64,
+        912
+      ],
+      "id": "5a5cafe7-b260-4de8-a3f1-baa8813c94d4",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5vLGq9WBET1ntzdc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the risk for the supplier based on the internal news.\n\nReturn only the JSON output in the required format.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a Supplier Risk Analysis AI.\n\nYou will receive information for one supplier at a time from the google sheets tool including an \"Internal_news\" column. \nYour job is to analyze ONLY the internal news and determine the level of operational or safety risk.\n\nEvaluate the severity based on factors such as:\n- operational disruption\n- safety incidents\n- equipment failure\n- fire or contamination\n- injury or fatality\n- supply chain delays\n- regulatory or compliance issues\n- environmental hazards\n- production downtime\n\nBased on the news and severity, compute a risk_score between 0 and 1:\n\nRisk thresholds:\n- 0.7 to 1.0 → Critical Risk, Count 0.7 as critical risk\n- 0.4 to 0.7 → Medium Risk\n- below 0.4 → Low Risk\n\nReturn the result in STRICT JSON format:\n\n{\n  \"supplier_name\": \" {{ $json.supplier_name }}\",\n  \"risk_score\": <0-1>,\n  \"risk_level\": \"Critical\" | \"Medium\" | \"Low\",\n  \"key_factors\": [\n    \"reason 1\",\n    \"reason 2\"\n  ],\n  \"summary\": \"<brief explanation>\"\n}\n\nRules:\n- Analyze only the internal news provided.\n- Do not add external information.\n- Always return valid JSON.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -48,
+        656
+      ],
+      "id": "4c2c0a83-7c0b-4dee-be23-9946aa85d6fc",
+      "name": "Internal news sample agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Fetch the financial data for the supplier using its ticker: {{$json.ticker}}.\nThen analyze the financial stability, performance, and risk indicators.\nReturn the JSON output exactly in the specified format.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a financial risk analysis agent.\n\nYou have access to an HTTP tool that can fetch financial data for a supplier from the Yahoo Finance API.\n\nWhen you need financial information, call the HTTP tool\n\n\nAfter fetching the financial data, analyze key metrics, including:\n- regularMarketPrice\n- regularMarketChangePercent\n- marketCap\n- volume vs averageVolume\n- trailingPE, forwardPE\n- epsTrailingTwelveMonths\n- fiftyTwoWeekHigh, fiftyTwoWeekLow\n- volatility indicators\n- any other available fields\n\nCompute a financial risk_score between 0 and 1:\n\nFinancial Risk thresholds:\n- 0.7 to 1.0 → Critical, count 0.7 as Critical\n- 0.4 to 0.7 → Medium\n- below 0.4 → Low\n\nReturn output in EXACT JSON format:\n\n{\n   \"supplier_name\": \"{{ $json.supplier_name }}\",\n  \"ticker\": \"<ticker>\",\n  \"risk_score\": <number between 0 and 1>,\n  \"risk_level\": \"Critical\" | \"Medium\" | \"Low\",\n  \"key_insights\": [\n    \"insight 1\",\n    \"insight 2\"\n  ],\n  \"summary\": \"<short explanation>\"\n}\n\nRules:\n- Always call the HTTP tool first using the ticker.\n- Use the financial data returned to compute risk_score.\n- Always classify risk using the thresholds above.\n- Always return valid JSON only. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -16,
+        -80
+      ],
+      "id": "25f268e4-24c7-422e-929b-6eb9b128be45",
+      "name": "Financial risk analysis tool"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Fetch the latest Google News articles for the supplier name: {{$json.supplier_name}}.\nUse the SerpAPI HTTP tool to retrieve real news results.\nAnalyze the risk based on the news and return the response in the required JSON format.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a supplier news risk analysis agent.\n\nYou have access to an HTTP tool that can fetch the latest news using the SerpAPI Google News Search.\n\nWhen you need news information, call the HTTP tool using:\n- HTTP GET request\n- URL: https://serpapi.com/search?engine=google_news&q=<SUPPLIER_NAME>&api_key=<API_KEY>\n\n<IMPORTANT>\nReplace <SUPPLIER_NAME> with the supplier name provided in the input item.\nReplace <API_KEY> with the SerpAPI key stored in the HTTP node configuration.\nNever guess or fabricate news. Always rely on the HTTP tool.\n</IMPORTANT>\n\nAfter fetching news, evaluate:\n- Recent negative reports\n- Controversies\n- Regulatory or compliance issues\n- Financial distress signals\n- Operational disruptions\n- Public sentiment\n- Product recall issues\n- Lawsuits or government warnings\n\nThen compute a news-based risk score between 0 and 1.\n\nRisk thresholds:\n- 0.7 to 1.0 → Critical, Consider 0.7 as Critical \n- 0.4 to 0.7 → Medium\n- below 0.4 → Low\n\nReturn output ONLY in the following JSON format:\n\n{\n  \"supplier_name\": \" {{ $json.supplier_name }}\",\n  \"risk_score\": <number between 0 and 1>,\n  \"risk_level\": \"Critical\" | \"Medium\" | \"Low\",\n  \"key_news\": [\n    \"headline 1\",\n    \"headline 2\"\n  ],\n  \"key_insights\": [\n    \"insight 1\",\n    \"insight 2\"\n  ],\n  \"summary\": \"<short explanation>\"\n}\n\nRules:\n- Always call the HTTP tool to fetch the news.\n- Use actual SerpAPI response to analyze risk.\n- Never make up news items.\n- Always return VALID JSON.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -32,
+        288
+      ],
+      "id": "fbd876b1-9609-45b0-92a9-bd69821106ac",
+      "name": "Google search tool"
+    },
+    {
+      "parameters": {
+        "jsCode": "const arr = JSON.parse($input.first().json.text)\nreturn arr.map(item => ({ json: item }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        320
+      ],
+      "id": "71bd234a-5caf-4869-bc4c-c5383bf18bce",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "sharas1729@gmail.com, santoshrekha25@gmail.com,msumitha959@gmail.com,msumitha959@gmail.com",
+        "subject": "SUPPLIER RISK ALERT",
+        "emailType": "text",
+        "message": "=Hi Vendor,|\n   The following suppliers have been identified as CRITICAL RISK:\nSupplier Name:{{ $('Code in JavaScript').item.json.supplier_name }} \nOverall Risk Score:  {{ $('Code in JavaScript').item.json.overall_risk_score }}\nRisk Level:{{ $('Code in JavaScript').item.json.overall_risk_level }} \nSummary:{{ $('Code in JavaScript').item.json.summary }}\n   Please review this supplier urgently and take the necessary actions.\nRegards,\nSupplier Risk Monitoring team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1824,
+        64
+      ],
+      "id": "7358047b-6ff6-4044-99a0-43f695cf4248",
+      "name": "Send a message",
+      "webhookId": "de6e0864-7ca0-4f6a-807e-3a8f5a933484",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QJbYlVYL3xUHjOQl",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"supplier_name\": \"supplier_name\",\n  \"ticker\": \"AAPL\",\n  \"risk_score\": 0.5,\n  \"risk_level\": \"Critical\",\n  \"key_insights\": [\n    \"insight 1\",\n    \"insight 2\"\n  ],\n  \"summary\": \"short explanation\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        480
+      ],
+      "id": "1da62b8d-73f9-42bb-bb6f-451c78af57aa",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"supplier_name\": \"supplier_name\",\n  \"ticker\": \"AAPL\",\n  \"risk_score\": 0.5,\n  \"risk_level\": \"Critical\",\n  \"key_insights\": [\n    \"insight 1\",\n    \"insight 2\"\n  ],\n  \"summary\": \"short explanation\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        960
+      ],
+      "id": "77e51ebc-fcf4-415f-9525-0c165ff786aa",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "={\n  \"supplier_name\": \"supplier_name\",\n  \"ticker\": \"AAPL\",\n  \"risk_score\": 0.5,\n  \"risk_level\": \"Critical\",\n  \"key_insights\": [\n    \"insight 1\",\n    \"insight 2\"\n  ],\n  \"summary\": \"short explanation\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        144
+      ],
+      "id": "5ed2f09b-8e50-462c-bf71-ec1af5fea70c",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Build Supplier List": {
+      "main": [
+        [
+          {
+            "node": "Google search tool",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Financial risk analysis tool",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Internal news sample agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Critical?": {
+      "main": [
+        [
+          {
+            "node": "Trend Analysis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF Medium or Low",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Medium or Low": {
+      "main": [
+        [
+          {
+            "node": "Log Medium Weekly Digest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Trend Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Trend Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Supplier List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Google search tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Serp API Node": {
+      "ai_tool": [
+        [
+          {
+            "node": "Google search tool",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "Financial risk analysis tool",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Financial risk analysis tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Internal news sample agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "Internal news sample agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal news sample agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Financial risk analysis tool": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google search tool": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "IF Critical?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Google search tool",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Internal news sample agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Financial risk analysis tool",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0cab88c4-a2ae-446b-93ec-d77be214349d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "229c98db852a8f9e658bda04afaa8d63fa3e1c3073fdc1c2405bff69c94ed1bb"
+  },
+  "id": "it66oHkz5BjU4iuU",
+  "tags": []
+}
